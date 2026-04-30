@@ -1,34 +1,23 @@
 import { useState } from "react";
-import Popup from "./components/Popup/Popup";
-import Card from "./components/Card/Card";
-import NewCard from "./forms/NewCard/NewCard";
-import EditProfile from "./forms/EditProfile/EditProfile";
-import EditAvatar from "./forms/EditAvatar/EditAvatar";
+import Card from "../Card/Card";
+import EditProfile from "../EditProfile/EditProfile";
+import EditAvatar from "../Avatar/EditAvatar";
+import NewCard from "../NewCard/NewCard";
+import RemoveCard from "../RemoveCard/RemoveCard";
+import ImagePopup from "../ImagePopup/ImagePopup";
+import Popup from "../Popup/Popup";
+
 
 const initialCards = [
-  {
-    isLiked: false,
-    _id: '1',
-    name: 'Yosemite Valley',
-    link: 'https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_yosemite.jpg',
-  },
-  {
-    isLiked: false,
-    _id: '2',
-    name: 'Lake Louise',
-    link: 'https://practicum-content.s3.us-west-1.amazonaws.com/web-code/moved_lake-louise.jpg',
-  }
+  { name: "Valle de Yosemite", link: "https://practicum-content.s3.us-west-1.amazonaws.com/new-markets/hlw/yosemite.jpg", _id: "1" },
+  { name: "Lago Louise", link: "https://practicum-content.s3.us-west-1.amazonaws.com/new-markets/hlw/lake-louise.jpg", _id: "2" }
 ];
 
 export default function Main() {
   const [popup, setPopup] = useState(null);
 
-  const editProfilePopup = { title: "Editar perfil", children: <EditProfile /> };
-  const newCardPopup = { title: "Nuevo lugar", children: <NewCard /> };
-  const editAvatarPopup = { title: "Cambiar foto de perfil", children: <EditAvatar /> };
-
-  function handleOpenPopup(popupConfig) {
-    setPopup(popupConfig);
+  function handleOpenPopup(config) {
+    setPopup(config);
   }
 
   function handleClosePopup() {
@@ -36,14 +25,16 @@ export default function Main() {
   }
 
   function handleCardClick(card) {
-    setPopup({
-      title: null, // Al ser null, el componente Popup aplicará la clase de imagen
-      children: (
-        <>
-          <img src={card.link} alt={card.name} className="popup__image" />
-          <p className="popup__caption">{card.name}</p>
-        </>
-      )
+    handleOpenPopup({
+      title: null,
+      children: <ImagePopup card={card} />
+    });
+  }
+
+  function handleDeleteClick() {
+    handleOpenPopup({
+      title: "¿Estás seguro?",
+      children: <RemoveCard />
     });
   }
 
@@ -51,31 +42,43 @@ export default function Main() {
     <main className="content">
       <section className="profile page__section">
         <div className="profile__image-container">
-          <img 
-            src="https://practicum-content.s3.us-west-1.amazonaws.com/frontend-developer/common/avatar.jpg" 
-            alt="Avatar" 
-            className="profile__image" 
+          <div 
+            className="profile__image-overlay" 
+            onClick={() => handleOpenPopup({ title: "Cambiar foto de perfil", children: <EditAvatar /> })}
           />
-          <div className="profile__image-overlay" onClick={() => handleOpenPopup(editAvatarPopup)}></div>
+          <div className="profile__image" />
         </div>
         <div className="profile__info">
           <h1 className="profile__title">Jacques Cousteau</h1>
-          <button className="profile__edit-button" type="button" onClick={() => handleOpenPopup(editProfilePopup)}></button>
+          <button 
+            className="profile__edit-button" 
+            type="button" 
+            onClick={() => handleOpenPopup({ title: "Editar perfil", children: <EditProfile /> })}
+          />
           <p className="profile__description">Explorador</p>
         </div>
-        <button className="profile__add-button" type="button" onClick={() => handleOpenPopup(newCardPopup)}></button>
+        <button 
+          className="profile__add-button" 
+          type="button" 
+          onClick={() => handleOpenPopup({ title: "Nuevo lugar", children: <NewCard /> })}
+        />
       </section>
 
       <section className="cards page__section">
         <ul className="cards__list">
           {initialCards.map((card) => (
-            <Card key={card._id} card={card} onCardClick={handleCardClick} />
+            <Card 
+              key={card._id} 
+              card={card} 
+              onCardClick={handleCardClick}
+              onDeleteClick={handleDeleteClick} 
+            />
           ))}
         </ul>
       </section>
 
       {popup && (
-        <Popup onClose={handleClosePopup} title={popup.title}>
+        <Popup title={popup.title} onClose={handleClosePopup}>
           {popup.children}
         </Popup>
       )}
