@@ -1,11 +1,11 @@
 import { useState } from "react";
-import Card from "../Card/Card";
-import EditProfile from "../EditProfile/EditProfile";
-import EditAvatar from "../Avatar/EditAvatar";
-import NewCard from "../NewCard/NewCard";
-import RemoveCard from "../RemoveCard/RemoveCard";
-import ImagePopup from "../ImagePopup/ImagePopup";
-import Popup from "../Popup/Popup";
+import Card from "./components/Card/Card";
+import EditProfile from "./components/EditProfile/EditProfile";
+import EditAvatar from "./components/Avatar/EditAvatar";
+import NewCard from "./components/NewCard/NewCard";
+import RemoveCard from "./components/RemoveCard/RemoveCard";
+import ImagePopup from "./components/ImagePopup/ImagePopup";
+import Popup from "./components/Popup/Popup";
 
 
 const initialCards = [
