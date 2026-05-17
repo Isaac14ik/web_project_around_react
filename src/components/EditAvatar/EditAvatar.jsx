@@ -1,13 +1,32 @@
-import { useRef, useContext } from 'react';
+import { useRef, useState, useContext } from 'react';
 import CurrentUserContext from '../../contexts/CurrentUserContext';
 
 function EditAvatar({ onClose }) {
   const avatarRef = useRef();
   const { handleUpdateAvatar } = useContext(CurrentUserContext);
+  const [error, setError] = useState('');
+  const [isValid, setIsValid] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const validateUrl = (url) => {
+    const pattern = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+    return pattern.test(url);
+  };
+
+  const handleChange = () => {
+    const url = avatarRef.current.value;
+    const valid = validateUrl(url) && url.length > 0;
+    setIsValid(valid);
+    setError(valid ? '' : 'Ingrese una URL válida');
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    handleUpdateAvatar({ avatar: avatarRef.current.value });
+    if (isValid) {
+      setIsLoading(true);
+      handleUpdateAvatar({ avatar: avatarRef.current.value })
+        .finally(() => setIsLoading(false));
+    }
   };
 
   return (
@@ -16,17 +35,23 @@ function EditAvatar({ onClose }) {
       <label className="popup__label">
         <input
           ref={avatarRef}
-          className="popup__input popup__input_type_avatar"
-          id="avatar-url"
+          className={`popup__input ${error ? 'popup__input_type_error' : ''}`}
+          type="url"
           name="avatar"
           placeholder="Enlace a la imagen"
           required
-          type="url"
+          onChange={handleChange}
         />
-        <span className="popup__error" id="avatar-url-error"></span>
+        <span className={`popup__error ${error ? 'popup__error_visible' : ''}`}>
+          {error}
+        </span>
       </label>
-      <button className="button popup__button" type="submit">
-        Guardar
+      <button 
+        className={`button popup__button ${!isValid ? 'popup__button_disabled' : ''}`}
+        type="submit"
+        disabled={!isValid || isLoading}
+      >
+        {isLoading ? 'Guardando...' : 'Guardar'}
       </button>
     </form>
   );
