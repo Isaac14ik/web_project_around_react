@@ -1,22 +1,33 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 function NewCard({ onAddPlace, onClose }) {
   const [name, setName] = useState('');
   const [link, setLink] = useState('');
+  const [errors, setErrors] = useState({ name: '', link: '' });
+  const [isValid, setIsValid] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleNameChange = (e) => {
-    setName(e.target.value);
-  };
-
-  const handleLinkChange = (e) => {
-    setLink(e.target.value);
-  };
+  useEffect(() => {
+    const nameValid = name.length >= 1 && name.length <= 30;
+    const urlValid = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(link);
+    setIsValid(nameValid && urlValid && name.length > 0 && link.length > 0);
+    setErrors({
+      name: nameValid ? '' : 'El título debe tener entre 1 y 30 caracteres',
+      link: urlValid ? '' : 'Ingrese una URL válida'
+    });
+  }, [name, link]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onAddPlace({ name, link });
-    setName('');
-    setLink('');
+    if (isValid) {
+      setIsLoading(true);
+      onAddPlace({ name, link })
+        .finally(() => {
+          setIsLoading(false);
+          setName('');
+          setLink('');
+        });
+    }
   };
 
   return (
@@ -24,34 +35,40 @@ function NewCard({ onAddPlace, onClose }) {
       <h2 className="popup__title">Nuevo lugar</h2>
       <label className="popup__label">
         <input
-          className="popup__input popup__input_type_title"
-          id="card-title"
-          maxLength="30"
-          minLength="1"
+          className={`popup__input ${errors.name ? 'popup__input_type_error' : ''}`}
+          type="text"
           name="cardName"
           placeholder="Título"
           required
-          type="text"
+          minLength="1"
+          maxLength="30"
           value={name}
-          onChange={handleNameChange}
+          onChange={(e) => setName(e.target.value)}
         />
-        <span className="popup__error" id="card-title-error"></span>
+        <span className={`popup__error ${errors.name ? 'popup__error_visible' : ''}`}>
+          {errors.name}
+        </span>
       </label>
       <label className="popup__label">
         <input
-          className="popup__input popup__input_type_link"
-          id="card-link"
+          className={`popup__input ${errors.link ? 'popup__input_type_error' : ''}`}
+          type="url"
           name="cardLink"
           placeholder="Enlace a la imagen"
           required
-          type="url"
           value={link}
-          onChange={handleLinkChange}
+          onChange={(e) => setLink(e.target.value)}
         />
-        <span className="popup__error" id="card-link-error"></span>
+        <span className={`popup__error ${errors.link ? 'popup__error_visible' : ''}`}>
+          {errors.link}
+        </span>
       </label>
-      <button className="button popup__button" type="submit">
-        Crear
+      <button 
+        className={`button popup__button ${!isValid ? 'popup__button_disabled' : ''}`}
+        type="submit"
+        disabled={!isValid || isLoading}
+      >
+        {isLoading ? 'Creando...' : 'Crear'}
       </button>
     </form>
   );
