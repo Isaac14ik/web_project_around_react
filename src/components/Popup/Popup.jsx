@@ -1,3 +1,4 @@
+// src/components/Popup/Popup.jsx
 import { useEffect } from 'react';
 
 function Popup({ children, onClose }) {
@@ -23,7 +24,7 @@ function Popup({ children, onClose }) {
   return (
     <div className="popup popup_opened" onClick={handleOverlayClick}>
       <div className="popup__content">
-        <button className="popup__close" onClick={onClose}></button>
+        <button className="popup__close" onClick={onClose} type="button"></button>
         {children}
       </div>
     </div>
