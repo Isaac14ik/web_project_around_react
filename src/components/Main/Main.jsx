@@ -15,11 +15,11 @@ function Main({
   return (
     <main className="content">
       <section className="profile">
-        <div className="profile__avatar-container">
+        <div className="profile__image-container">
           <img
             src={currentUser.avatar}
             alt={currentUser.name}
-            className="profile__avatar"
+            className="profile__image"
           />
           <button
             className="profile__avatar-edit"
