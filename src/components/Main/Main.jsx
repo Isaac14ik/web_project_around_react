@@ -1,87 +1,61 @@
-import { useState } from "react";
-import Card from "./components/Card/Card";
-import EditProfile from "./components/EditProfile/EditProfile";
-import EditAvatar from "./components/Avatar/EditAvatar";
-import NewCard from "./components/NewCard/NewCard";
-import RemoveCard from "./components/RemoveCard/RemoveCard";
-import ImagePopup from "./components/ImagePopup/ImagePopup";
-import Popup from "./components/Popup/Popup";
+import { useContext } from 'react';
+import Card from '../Card/Card';
+import CurrentUserContext from '../../contexts/CurrentUserContext';
 
-
-const initialCards = [
-  { name: "Valle de Yosemite", link: "https://practicum-content.s3.us-west-1.amazonaws.com/new-markets/hlw/yosemite.jpg", _id: "1" },
-  { name: "Lago Louise", link: "https://practicum-content.s3.us-west-1.amazonaws.com/new-markets/hlw/lake-louise.jpg", _id: "2" }
-];
-
-export default function Main() {
-  const [popup, setPopup] = useState(null);
-
-  function handleOpenPopup(config) {
-    setPopup(config);
-  }
-
-  function handleClosePopup() {
-    setPopup(null);
-  }
-
-  function handleCardClick(card) {
-    handleOpenPopup({
-      title: null,
-      children: <ImagePopup card={card} />
-    });
-  }
-
-  function handleDeleteClick() {
-    handleOpenPopup({
-      title: "¿Estás seguro?",
-      children: <RemoveCard />
-    });
-  }
+function Main({
+  cards,
+  onCardLike,
+  onCardDelete,
+  onCardClick,
+  onRemoveClick,
+  onOpenPopup,
+}) {
+  const { currentUser } = useContext(CurrentUserContext);
 
   return (
     <main className="content">
-      <section className="profile page__section">
-        <div className="profile__image-container">
-          <div 
-            className="profile__image-overlay" 
-            onClick={() => handleOpenPopup({ title: "Cambiar foto de perfil", children: <EditAvatar /> })}
+      <section className="profile">
+        <div className="profile__avatar-container">
+          <img
+            src={currentUser.avatar}
+            alt={currentUser.name}
+            className="profile__avatar"
           />
-          <div className="profile__image" />
+          <button
+            className="profile__avatar-edit"
+            onClick={() => onOpenPopup('avatar')}
+          ></button>
         </div>
         <div className="profile__info">
-          <h1 className="profile__title">Jacques Cousteau</h1>
-          <button 
-            className="profile__edit-button" 
-            type="button" 
-            onClick={() => handleOpenPopup({ title: "Editar perfil", children: <EditProfile /> })}
-          />
-          <p className="profile__description">Explorador</p>
+          <div className="profile__name-container">
+            <h1 className="profile__name">{currentUser.name}</h1>
+            <button
+              className="profile__edit-button"
+              onClick={() => onOpenPopup('edit')}
+            ></button>
+          </div>
+          <p className="profile__description">{currentUser.about}</p>
         </div>
-        <button 
-          className="profile__add-button" 
-          type="button" 
-          onClick={() => handleOpenPopup({ title: "Nuevo lugar", children: <NewCard /> })}
-        />
+        <button
+          className="profile__add-button"
+          onClick={() => onOpenPopup('newcard')}
+        ></button>
       </section>
 
-      <section className="cards page__section">
-        <ul className="cards__list">
-          {initialCards.map((card) => (
-            <Card 
-              key={card._id} 
-              card={card} 
-              onCardClick={handleCardClick}
-              onDeleteClick={handleDeleteClick} 
-            />
-          ))}
-        </ul>
-      </section>
-
-      {popup && (
-        <Popup title={popup.title} onClose={handleClosePopup}>
-          {popup.children}
-        </Popup>
-      )}
+      <div className="cards">
+        {cards.map((card) => (
+          <Card
+            key={card._id}
+            card={card}
+            onCardLike={onCardLike}
+            onCardDelete={onCardDelete}
+            onCardClick={onCardClick}
+            onRemoveClick={onRemoveClick}
+          />
+        ))}
+      </div>
     </main>
   );
 }
+
+export default Main;
